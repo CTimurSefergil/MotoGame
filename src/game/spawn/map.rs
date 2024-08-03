@@ -11,15 +11,8 @@ pub(super) fn plugin(app: &mut App) {
 pub struct SpawnMap;
 
 fn spawn_map(_trigger: Trigger<SpawnMap>, mut commands: Commands) {
-    /* Create the ground. */
-    commands
-        .spawn((
-            Collider::cuboid(100.0, 0.1, 100.0),
-            StateScoped(Screen::Playing),
-        ))
-        .insert(TransformBundle::from(Transform::from_xyz(0.0, -2.0, 0.0)));
-
     /* Create the bouncing ball. */
+
     commands
         .spawn((RigidBody::Dynamic, StateScoped(Screen::Playing)))
         .insert(Collider::ball(2.0))
