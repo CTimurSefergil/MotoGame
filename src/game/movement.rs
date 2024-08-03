@@ -3,9 +3,8 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/pull/14223).
 
-use std::time::Duration;
-
 use bevy::prelude::*;
+use std::time::Duration;
 
 use super::{audio::sfx::Sfx, spawn::player::Player, GameSystem};
 
@@ -119,11 +118,11 @@ fn update_camera(
         return;
     };
 
-    println!("{:?}", player.translation);
+    //    println!("{:?}", player.translation);
 
     let Vec3 { x, y, z } = player.translation;
-    let direction = Vec3::new(x, y + 2.3, z + 1.1);
-
+    let direction = Vec3::new(x, y + 500.0, z + 1000.0);
+    // 2.3 1.1
     camera.translation = direction;
+    camera.rotation = Quat::from_rotation_x(-0.5);
 }
-//
