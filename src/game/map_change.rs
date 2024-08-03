@@ -108,4 +108,3 @@ fn destroy_tiles(
 fn grid_to_world(x: f32, z: f32) -> (f32, f32) {
     (x * TILE_W as f32, z * TILE_H as f32)
 }
-//
