@@ -3,13 +3,22 @@
 use bevy::prelude::*;
 
 pub mod audio;
+mod map_change;
 mod movement;
 pub mod spawn;
 
 pub(super) fn plugin(app: &mut App) {
     // Order new `GameSystem` variants by adding them here:
-    app.configure_sets(Update, (GameSystem::Movement,).chain());
-    app.add_plugins((audio::plugin, movement::plugin, spawn::plugin));
+    app.configure_sets(
+        Update,
+        (GameSystem::Movement, GameSystem::MapChange).chain(),
+    );
+    app.add_plugins((
+        audio::plugin,
+        movement::plugin,
+        spawn::plugin,
+        map_change::plugin,
+    ));
 }
 
 /// High-level groupings of systems for your game.
@@ -19,5 +28,6 @@ pub(super) fn plugin(app: &mut App) {
 enum GameSystem {
     /// Handles player movement.
     Movement,
+    /// Handles map changes.
+    MapChange,
 }
-//
