@@ -1,0 +1,87 @@
+(ÇÖZÜLDÜ)
+SORUN:
+Şu anda TILE_W ve TILE_H kaç tane büyük kare oluşacağını belirliyor
+Her for döngüsü baştan sona koca bir kare oluşturuyor ve onu tek bir entity e bağlıyor.
+
+ÇÖZÜM:
+Ne bilim amk.
+Vay anasını permütasyon kullanıldığı için böyle.
+GRID_X ve GRID_Z 1'ken tek bir tanesi için
+2 seçenek varken 2 üssü 2 verdi
+
+GRID_X ve GRID_Z 2'yken tek bir tanesi için
+3 seçenek varken 3 üssü 3 verdi
+
+Bu örüntü böyle böyle gidiyor
+n^2 şeklinde değişiyor her zaman
+
+AMIN SALAĞI ALAN FORMÜLÜ LAN İŞTE BU 
+BURAYA KADAR ALAN BULUYOR, TAMAM BUNDA SORUN YOK
+
+BULDUM SORUNU BEN BİR ALLAHIMMMMM
+
+ULAN
+(0, 0)
+(0, 1)
+(0, 2)
+(0, 3)
+(0, 4)
+(1, 0)
+(1, 1)
+(1, 2)
+(1, 3)
+(1, 4)
+(2, 0)
+(2, 1)
+(2, 2)
+(2, 3)
+(2, 4)
+(3, 0)
+(3, 1)
+(3, 2)
+(3, 3)
+(3, 4)
+(4, 0)
+(4, 1)
+(4, 2)
+(4, 3)
+(4, 4)
+
+BAKSANA ŞURAYAAA
+
+ULAN 5 FARKLI BÜYÜKLÜKTE 5'ER TANE KARE KOYUYOR HER DÖNGÜDEEEEEEE
+
+VAY ANASINI BUNDA SORUN YOKKİ
+BU OLMASI GEREKEN ???
+
+HAYIR EVET ÇÖZDÜMMMM
+ULAN (0, 4) DEDİĞİN ZAMAN O KORDİNATI ALGILAMIYOR, 0'DAN 4'E KADAR KARE ÇİZ ANLIYOOOORRR :D
+
+(ÇÖZÜLDÜ)
+SORUN:
+Nasıl blokların hep bitişik çıkmasını sağlarım.
+
+ÇÖZÜM:
+En yakın 6'nın katı bir tam sayıya yuvarlanması lazım.
+
+
+
+
+
+
+
+
+
+
+
+
+!!!
+PERFORMANS GELİŞTİRMELERİ:
+1. GRID hesaplamasını her tur yapmamalı.
+2. Oyuncu sadece hareket edince map_change algoritması çalışmalı.
+
+
+
+!!!
+ŞU HALİYLE ANİMSAYON İÇİN KULLANILABİLİR.
+!!!
