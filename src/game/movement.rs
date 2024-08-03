@@ -126,3 +126,4 @@ fn update_camera(
 
     camera.translation = direction;
 }
+//

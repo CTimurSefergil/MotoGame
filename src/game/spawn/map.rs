@@ -26,3 +26,4 @@ fn spawn_map(_trigger: Trigger<SpawnMap>, mut commands: Commands) {
         .insert(Restitution::coefficient(0.7))
         .insert(TransformBundle::from(Transform::from_xyz(0.0, 16.0, -10.0)));
 }
+//
