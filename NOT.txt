@@ -78,10 +78,17 @@ En yakın 6'nın katı bir tam sayıya yuvarlanması lazım.
 !!!
 PERFORMANS GELİŞTİRMELERİ:
 1. GRID hesaplamasını her tur yapmamalı.
-2. Oyuncu sadece hareket edince map_change algoritması çalışmalı.
+2. Oyuncu sadece hareket edince map_change algoritması çalışmalı. YAPILDI
 
 
 
 !!!
 ŞU HALİYLE ANİMSAYON İÇİN KULLANILABİLİR.
 !!!
+
+SORUN:
+Her kare değil sadece uzaktaki kareler yeniden oluşturulmalı.
+
+ÇÖZÜM:
+    YAKLAŞIMLAR:
+        1. Uzağındaki kareleri yok etmek yerine yerine yenisini yerleştirecek algoritma.
