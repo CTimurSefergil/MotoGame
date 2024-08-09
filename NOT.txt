@@ -86,9 +86,26 @@ PERFORMANS GELİŞTİRMELERİ:
 ŞU HALİYLE ANİMSAYON İÇİN KULLANILABİLİR.
 !!!
 
+(ÇÖZÜLDÜ)
 SORUN:
 Her kare değil sadece uzaktaki kareler yeniden oluşturulmalı.
 
 ÇÖZÜM:
     YAKLAŞIMLAR:
         1. Uzağındaki kareleri yok etmek yerine yerine yenisini yerleştirecek algoritma.
+
+
+NEDEN BU 
+Collider::cuboid(
+        KARE_KENAR_UZUNLUGU as f32 / 2.0,
+        0.0,
+        KARE_KENAR_UZUNLUGU as f32 / 2.0,
+),            
+BÖYLE ÇÖZ
+
+
+SORUN: 
+Bitişiğindeki karelerin verilerini almak.
+
+ÇÖZÜM:
+Transform'dan 1 birim sağ bir birim sol bir birim yukarım bir birim aşağı al.
