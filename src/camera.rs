@@ -1,5 +1,6 @@
 //! Camera setup.
 
+use bevy::pbr::ClusterConfig;
 use bevy::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -14,5 +15,6 @@ fn spawn_camera(mut commands: Commands) {
             ..Default::default()
         },
         IsDefaultUiCamera,
+        ClusterConfig::Single,
     ));
 }

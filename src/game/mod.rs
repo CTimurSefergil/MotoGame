@@ -3,7 +3,7 @@
 use bevy::prelude::*;
 
 pub mod audio;
-mod map_change;
+pub mod map_change;
 mod movement;
 pub mod spawn;
 

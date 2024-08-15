@@ -109,3 +109,11 @@ Bitişiğindeki karelerin verilerini almak.
 
 ÇÖZÜM:
 Transform'dan 1 birim sağ bir birim sol bir birim yukarım bir birim aşağı al.
+
+
+SORUN:
+ÇOK FAZLA FOR LOOP VAR. !!!!!!!!!!!!!!!!!!
+!!!!!!!!!!
+ÇÖZÜM:
+CONST HARD CODED BİR ŞEKİLDE POZİSYONLARI KENDİN GİR.
+!!!!!!!!!!!!!!

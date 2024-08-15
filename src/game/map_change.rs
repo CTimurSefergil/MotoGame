@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::hashbrown::HashSet};
-use bevy_rapier3d::prelude::*;
+use bevy_inspector_egui::prelude::*;
 use std::time::Duration;
 
 use crate::screen::Screen;
@@ -14,64 +14,169 @@ pub(super) fn plugin(app: &mut App) {
                 .in_set(GameSystem::MapChange)
                 .run_if(run_if_empty_map),
             update_tiles.in_set(GameSystem::MapChange),
+            destroy_tiles,
         )
             .chain(),
-    );
+    )
+    .insert_resource(Kare {
+        bir_siradaki_kare_sayisi: 15,
+        kare_kenar_uzunlugu: 8,
+    });
 }
 
-const BIR_SIRADAKI_KARE_SAYISI: usize = 40;
-
-const KARE_KENAR_UZUNLUGU: usize = 8;
-
-const TIME: Duration = Duration::from_millis(2000);
-
-const PATH: Vec<&'static str> = Vec::new();
+const TIME: Duration = Duration::from_millis(500);
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
 pub struct Map {
     pub id: i32,
 }
+#[derive(Reflect, Resource, Default, InspectorOptions)]
+#[reflect(Resource, InspectorOptions)]
+pub struct Kare {
+    pub bir_siradaki_kare_sayisi: usize,
+    pub kare_kenar_uzunlugu: usize,
+}
 
-fn create_tile_map(mut commands: Commands, player: Query<&Transform, With<Player>>) {
+#[derive(Reflect, Resource, Default, InspectorOptions)]
+#[reflect(Resource, InspectorOptions)]
+pub enum Asset {
+    Wall,
+    Tree,
+    #[default]
+    Column,
+}
+
+#[derive(Resource, Reflect, Default, InspectorOptions)]
+#[reflect(Resource, InspectorOptions)]
+pub struct AssetData {
+    asset: Asset,
+}
+
+fn create_tile_map(
+    mut commands: Commands,
+    kare: ResMut<Kare>,
+    asset: ResMut<AssetData>,
+    player: Query<&Transform, With<Player>>,
+    asset_server: Res<AssetServer>,
+) {
     let mut grids = HashSet::new();
 
     let Ok(player) = player.get_single() else {
         return;
     };
 
-    for x in 1..BIR_SIRADAKI_KARE_SAYISI {
-        for z in 1..BIR_SIRADAKI_KARE_SAYISI {
-            grids.insert((x, z));
-        }
+    for (x, z) in (0..kare.bir_siradaki_kare_sayisi)
+        .flat_map(|x| (0..kare.bir_siradaki_kare_sayisi).map(move |z| (x, z)))
+    {
+        grids.insert((x, z));
     }
 
-    for (en, (x, z)) in grids.iter().enumerate() {
-        let (world_x, world_z) = grid_to_world(*x as f32, *z as f32);
+    for (x, z) in grids.iter() {
+        let assets = match asset.asset {
+            Asset::Wall => "models/Wall.glb#Scene0",
+            Asset::Column => "models/column.glb#Scene0",
+            Asset::Tree => "models/tree.glb#Scene0",
+        };
+
+        let (world_x, world_z) = grid_to_world(*x as f32, *z as f32, kare.kare_kenar_uzunlugu);
+
+        let (location_x, location_y, location_z) = (
+            world_x
+                - (kare.kare_kenar_uzunlugu as f32 * kare.bir_siradaki_kare_sayisi as f32 / 2.0)
+                + (((player.translation.x.round()) / kare.kare_kenar_uzunlugu as f32).round()
+                    * kare.kare_kenar_uzunlugu as f32),
+            0.0,
+            world_z
+                - (kare.kare_kenar_uzunlugu as f32 * kare.bir_siradaki_kare_sayisi as f32 / 2.0)
+                + (((player.translation.z.round()) / kare.kare_kenar_uzunlugu as f32).round()
+                    * kare.kare_kenar_uzunlugu as f32),
+        );
+
         commands.spawn((
-            Collider::cuboid(
-                KARE_KENAR_UZUNLUGU as f32 / 2.0,
-                0.0,
-                KARE_KENAR_UZUNLUGU as f32 / 2.0,
-            ),
+            Name::new("Kare"),
+            SceneBundle {
+                scene: asset_server.load(assets),
+                transform: Transform::from_xyz(location_x, location_y, location_z).with_scale(
+                    Vec3::new(
+                        kare.kare_kenar_uzunlugu as f32 / 4.0,
+                        10.0,
+                        kare.kare_kenar_uzunlugu as f32 / 4.0,
+                    ),
+                ),
+                ..default()
+            },
             StateScoped(Screen::Playing),
-            TransformBundle::from(Transform::from_xyz(
-                world_x - (KARE_KENAR_UZUNLUGU as f32 * BIR_SIRADAKI_KARE_SAYISI as f32 / 2.0)
-                    + (((player.translation.x.round()) / KARE_KENAR_UZUNLUGU as f32).round()
-                        * KARE_KENAR_UZUNLUGU as f32),
-                0.0,
-                world_z - (KARE_KENAR_UZUNLUGU as f32 * BIR_SIRADAKI_KARE_SAYISI as f32 / 2.0)
-                    + (((player.translation.z.round()) / KARE_KENAR_UZUNLUGU as f32).round()
-                        * KARE_KENAR_UZUNLUGU as f32),
-            )),
-            Map { id: en as i32 },
+            Map { id: 1 },
+        ));
+
+        commands.spawn((
+            Name::new("Kare"),
+            SceneBundle {
+                scene: asset_server.load(assets),
+                transform: Transform::from_xyz(
+                    location_x + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                    location_y,
+                    location_z,
+                )
+                .with_scale(Vec3::new(
+                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                    10.0,
+                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                )),
+                ..default()
+            },
+            StateScoped(Screen::Playing),
+            Map { id: 1 },
+        ));
+
+        commands.spawn((
+            Name::new("Kare"),
+            SceneBundle {
+                scene: asset_server.load(assets),
+                transform: Transform::from_xyz(
+                    location_x,
+                    location_y,
+                    location_z + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                )
+                .with_scale(Vec3::new(
+                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                    10.0,
+                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                )),
+                ..default()
+            },
+            StateScoped(Screen::Playing),
+            Map { id: 1 },
+        ));
+
+        commands.spawn((
+            Name::new("Kare"),
+            SceneBundle {
+                scene: asset_server.load(assets),
+                transform: Transform::from_xyz(
+                    location_x + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                    location_y,
+                    location_z + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                )
+                .with_scale(Vec3::new(
+                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                    10.0,
+                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                )),
+                ..default()
+            },
+            StateScoped(Screen::Playing),
+            Map { id: 1 },
         ));
     }
 }
 
 fn update_tiles(
     mut commands: Commands,
+    kare: ResMut<Kare>,
+    asset: ResMut<AssetData>,
     player: Query<&Transform, With<Player>>,
-    map: Query<(Entity, &Transform), With<Map>>,
+    asset_server: Res<AssetServer>,
     mut last_sfx: Local<Duration>,
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
@@ -87,76 +192,167 @@ fn update_tiles(
     {
         let now = time.elapsed();
 
+        let mut grids = HashSet::new();
+
         let Ok(player) = player.get_single() else {
             return;
         };
 
-        let mut grids = HashSet::new();
-
         if *last_sfx + TIME < now {
             *last_sfx = now;
 
-            for x in 1..BIR_SIRADAKI_KARE_SAYISI {
-                for z in 1..BIR_SIRADAKI_KARE_SAYISI {
-                    grids.insert((x, z));
-                }
+            for (x, z) in (0..kare.bir_siradaki_kare_sayisi)
+                .flat_map(|x| (0..kare.bir_siradaki_kare_sayisi).map(move |z| (x, z)))
+            {
+                grids.insert((x, z));
             }
 
-            for (en, (x, z)) in grids.iter().enumerate() {
-                let (world_x, world_z) = grid_to_world(*x as f32, *z as f32);
+            for (x, z) in grids.iter() {
+                let assets = match asset.asset {
+                    Asset::Wall => "models/wall.glb#Scene0",
+                    Asset::Column => "models/column.glb#Scene0",
+                    Asset::Tree => "models/tree.glb#Scene0",
+                };
+
+                let (world_x, world_z) =
+                    grid_to_world(*x as f32, *z as f32, kare.kare_kenar_uzunlugu);
 
                 let (location_x, location_y, location_z) = (
-                    world_x - (KARE_KENAR_UZUNLUGU as f32 * BIR_SIRADAKI_KARE_SAYISI as f32 / 2.0)
-                        + (((player.translation.x.round()) / KARE_KENAR_UZUNLUGU as f32).round()
-                            * KARE_KENAR_UZUNLUGU as f32),
+                    world_x
+                        - (kare.kare_kenar_uzunlugu as f32 * kare.bir_siradaki_kare_sayisi as f32
+                            / 2.0)
+                        + (((player.translation.x.round()) / kare.kare_kenar_uzunlugu as f32)
+                            .round()
+                            * kare.kare_kenar_uzunlugu as f32),
                     0.0,
-                    world_z - (KARE_KENAR_UZUNLUGU as f32 * BIR_SIRADAKI_KARE_SAYISI as f32 / 2.0)
-                        + (((player.translation.z.round()) / KARE_KENAR_UZUNLUGU as f32).round()
-                            * KARE_KENAR_UZUNLUGU as f32),
+                    world_z
+                        - (kare.kare_kenar_uzunlugu as f32 * kare.bir_siradaki_kare_sayisi as f32
+                            / 2.0)
+                        + (((player.translation.z.round()) / kare.kare_kenar_uzunlugu as f32)
+                            .round()
+                            * kare.kare_kenar_uzunlugu as f32),
                 );
 
                 if player.translation.distance(Vec3 {
                     x: location_x,
                     y: location_y,
                     z: location_z,
-                }) > (BIR_SIRADAKI_KARE_SAYISI as f32 / 4.0) * KARE_KENAR_UZUNLUGU as f32
+                }) > (kare.bir_siradaki_kare_sayisi as f32 / 4.5)
+                    * kare.kare_kenar_uzunlugu as f32
                 {
                     commands.spawn((
-                        Collider::cuboid(
-                            KARE_KENAR_UZUNLUGU as f32 / 2.0,
-                            0.0,
-                            KARE_KENAR_UZUNLUGU as f32 / 2.0,
-                        ),
-                        StateScoped(Screen::Playing),
-                        TransformBundle::from(Transform::from_xyz(
-                            location_x, location_y, location_z,
-                        )),
-                        Map {
-                            //id: Vec3::new(world_x / 2.0, 0.0, world_z / 2.0),
-                            id: en as i32,
+                        Name::new("Kare"),
+                        SceneBundle {
+                            scene: asset_server.load(assets),
+                            transform: Transform::from_xyz(location_x, location_y, location_z)
+                                .with_scale(Vec3::new(
+                                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                                    10.0,
+                                    kare.kare_kenar_uzunlugu as f32 / 4.0,
+                                )),
+                            ..default()
                         },
+                        StateScoped(Screen::Playing),
+                        Map { id: 1 },
                     ));
-                }
-            }
 
-            for (entity, location) in map.iter() {
-                if player.translation.distance(location.translation)
-                    > BIR_SIRADAKI_KARE_SAYISI as f32 * KARE_KENAR_UZUNLUGU as f32
-                {
-                    commands.entity(entity).despawn();
+                    commands.spawn((
+                        Name::new("Kare"),
+                        SceneBundle {
+                            scene: asset_server.load(assets),
+                            transform: Transform::from_xyz(
+                                location_x + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                                location_y,
+                                location_z,
+                            )
+                            .with_scale(Vec3::new(
+                                kare.kare_kenar_uzunlugu as f32 / 4.0,
+                                10.0,
+                                kare.kare_kenar_uzunlugu as f32 / 4.0,
+                            )),
+                            ..default()
+                        },
+                        StateScoped(Screen::Playing),
+                        Map { id: 1 },
+                    ));
+
+                    commands.spawn((
+                        Name::new("Kare"),
+                        SceneBundle {
+                            scene: asset_server.load(assets),
+                            transform: Transform::from_xyz(
+                                location_x,
+                                location_y,
+                                location_z + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                            )
+                            .with_scale(Vec3::new(
+                                kare.kare_kenar_uzunlugu as f32 / 4.0,
+                                10.0,
+                                kare.kare_kenar_uzunlugu as f32 / 4.0,
+                            )),
+                            ..default()
+                        },
+                        StateScoped(Screen::Playing),
+                        Map { id: 1 },
+                    ));
+
+                    commands.spawn((
+                        Name::new("Kare"),
+                        SceneBundle {
+                            scene: asset_server.load(assets),
+                            transform: Transform::from_xyz(
+                                location_x + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                                location_y,
+                                location_z + kare.kare_kenar_uzunlugu as f32 / 2.0,
+                            )
+                            .with_scale(Vec3::new(
+                                kare.kare_kenar_uzunlugu as f32 / 4.0,
+                                10.0,
+                                kare.kare_kenar_uzunlugu as f32 / 4.0,
+                            )),
+                            ..default()
+                        },
+                        StateScoped(Screen::Playing),
+                        Map { id: 1 },
+                    ));
                 }
             }
         }
     }
 }
 
-fn grid_to_world(x: f32, z: f32) -> (f32, f32) {
-    (
-        x * KARE_KENAR_UZUNLUGU as f32,
-        z * KARE_KENAR_UZUNLUGU as f32,
-    )
+fn destroy_tiles(
+    mut commands: Commands,
+    kare: ResMut<Kare>,
+    player: Query<&Transform, With<Player>>,
+    map: Query<(Entity, &Transform), With<Map>>,
+    mut last_sfx: Local<Duration>,
+    time: Res<Time>,
+) {
+    let now = time.elapsed();
+
+    let Ok(player) = player.get_single() else {
+        return;
+    };
+    if *last_sfx + TIME < now {
+        *last_sfx = now;
+        for (entity, location) in map.iter() {
+            if player.translation.distance(location.translation)
+                > (kare.bir_siradaki_kare_sayisi as f32 * kare.kare_kenar_uzunlugu as f32) / 1.5
+            {
+                commands.entity(entity).despawn();
+            }
+        }
+    }
 }
 
 fn run_if_empty_map(query: Query<(), With<Map>>) -> bool {
     query.is_empty()
+}
+
+fn grid_to_world(x: f32, z: f32, kare_kenar_uzunlugu: usize) -> (f32, f32) {
+    (
+        x * kare_kenar_uzunlugu as f32,
+        z * kare_kenar_uzunlugu as f32,
+    )
 }
