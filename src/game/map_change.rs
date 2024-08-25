@@ -20,14 +20,17 @@ pub(super) fn plugin(app: &mut App) {
     )
     .insert_resource(Kare {
         bir_siradaki_kare_sayisi: 15,
-        kare_kenar_uzunlugu: 8,
+        kare_kenar_uzunlugu: 30,
     });
 }
+
+// I'd recommend creating a Startup system that puts the mesh handle in a resource. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// That should make it easy to use it wherever you need it. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 const TIME: Duration = Duration::from_millis(500);
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
-pub struct Map {
+pub struct Block {
     pub id: i32,
 }
 #[derive(Reflect, Resource, Default, InspectorOptions)]
@@ -106,7 +109,7 @@ fn create_tile_map(
                 ..default()
             },
             StateScoped(Screen::Playing),
-            Map { id: 1 },
+            Block { id: 1 },
         ));
 
         commands.spawn((
@@ -126,7 +129,7 @@ fn create_tile_map(
                 ..default()
             },
             StateScoped(Screen::Playing),
-            Map { id: 1 },
+            Block { id: 1 },
         ));
 
         commands.spawn((
@@ -146,7 +149,7 @@ fn create_tile_map(
                 ..default()
             },
             StateScoped(Screen::Playing),
-            Map { id: 1 },
+            Block { id: 1 },
         ));
 
         commands.spawn((
@@ -166,7 +169,7 @@ fn create_tile_map(
                 ..default()
             },
             StateScoped(Screen::Playing),
-            Map { id: 1 },
+            Block { id: 1 },
         ));
     }
 }
@@ -253,7 +256,7 @@ fn update_tiles(
                             ..default()
                         },
                         StateScoped(Screen::Playing),
-                        Map { id: 1 },
+                        Block { id: 1 },
                     ));
 
                     commands.spawn((
@@ -273,7 +276,7 @@ fn update_tiles(
                             ..default()
                         },
                         StateScoped(Screen::Playing),
-                        Map { id: 1 },
+                        Block { id: 1 },
                     ));
 
                     commands.spawn((
@@ -293,7 +296,7 @@ fn update_tiles(
                             ..default()
                         },
                         StateScoped(Screen::Playing),
-                        Map { id: 1 },
+                        Block { id: 1 },
                     ));
 
                     commands.spawn((
@@ -313,7 +316,7 @@ fn update_tiles(
                             ..default()
                         },
                         StateScoped(Screen::Playing),
-                        Map { id: 1 },
+                        Block { id: 1 },
                     ));
                 }
             }
@@ -325,7 +328,7 @@ fn destroy_tiles(
     mut commands: Commands,
     kare: ResMut<Kare>,
     player: Query<&Transform, With<Player>>,
-    map: Query<(Entity, &Transform), With<Map>>,
+    block: Query<(Entity, &Transform), With<Block>>,
     mut last_sfx: Local<Duration>,
     time: Res<Time>,
 ) {
@@ -336,7 +339,7 @@ fn destroy_tiles(
     };
     if *last_sfx + TIME < now {
         *last_sfx = now;
-        for (entity, location) in map.iter() {
+        for (entity, location) in block.iter() {
             if player.translation.distance(location.translation)
                 > (kare.bir_siradaki_kare_sayisi as f32 * kare.kare_kenar_uzunlugu as f32) / 1.5
             {
@@ -346,7 +349,7 @@ fn destroy_tiles(
     }
 }
 
-fn run_if_empty_map(query: Query<(), With<Map>>) -> bool {
+fn run_if_empty_map(query: Query<(), With<Block>>) -> bool {
     query.is_empty()
 }
 

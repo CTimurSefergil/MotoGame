@@ -121,8 +121,6 @@ fn update_camera(
     //    println!("{:?}", player.translation);
 
     let Vec3 { x, y, z } = player.translation;
-    let direction = Vec3::new(x, y + 200.0, z + 350.0);
-    // 2.3 1.1
+    let direction = Vec3::new(x, y + 2.3, z + 1.1);
     camera.translation = direction;
-    camera.rotation = Quat::from_rotation_x(-0.5);
 }
