@@ -14,6 +14,5 @@ pub(super) fn plugin(app: &mut App) {
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(ResourceInspectorPlugin::<Kare>::default())
         .init_resource::<Kare>()
-        .add_plugins(ResourceInspectorPlugin::<AssetData>::default())
         .init_resource::<AssetData>();
 }
